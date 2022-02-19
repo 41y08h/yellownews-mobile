@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -87,70 +86,13 @@ class _AppState extends State<App> {
                         itemCount: data['articles'].length,
                         itemBuilder: (context, index) {
                           if (data['articles'][index]['urlToImage'] == null) {
-                            return Container();
+                            return const SizedBox();
                           }
-                          return Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 1,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                CachedNetworkImage(
-                                  imageUrl: data['articles'][index]
-                                      ['urlToImage'],
-                                  width: double.infinity,
-                                  placeholder: (context, url) => Container(
-                                    height: 240,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        data['articles'][index]['title'],
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
-                                      ),
-                                      Text(
-                                        timeago.format(
-                                          DateTime.parse(
-                                            data['articles'][index]
-                                                ['publishedAt'],
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        data['articles'][index]['description'],
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: TextButton(
-                                          onPressed: () {
-                                            openArticle(index);
-                                          },
-                                          child: const Text("Read More"),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+
+                          return ArticleCard(
+                            data: data['articles'][index],
+                            onOpen: openArticle,
+                            id: index,
                           );
                         },
                       ),
@@ -158,6 +100,77 @@ class _AppState extends State<App> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ArticleCard extends StatelessWidget {
+  final dynamic data;
+  final Function onOpen;
+  final int id;
+  const ArticleCard(
+      {Key? key, required this.data, required this.onOpen, required this.id})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          Image.network(
+            data['urlToImage'],
+            width: double.infinity,
+            height: 200,
+            fit: BoxFit.cover,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data['title'],
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+                Text(
+                  timeago.format(
+                    DateTime.parse(
+                      data['publishedAt'],
+                    ),
+                  ),
+                ),
+                Text(
+                  data['description'],
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      onOpen(id);
+                    },
+                    child: const Text("Read More"),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
