@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -124,8 +125,8 @@ class ArticleCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Image.network(
-            data['urlToImage'],
+          CachedNetworkImage(
+            imageUrl: data['urlToImage'],
             width: double.infinity,
             height: 200,
             fit: BoxFit.cover,
