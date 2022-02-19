@@ -1,13 +1,21 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:yellow_news/screens/article_screen.dart';
 
 main() {
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+  ));
+
   runApp(
     MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "Yellow News",
       theme: ThemeData(
         textTheme: const TextTheme(
@@ -78,6 +86,9 @@ class _AppState extends State<App> {
                         ),
                         itemCount: data['articles'].length,
                         itemBuilder: (context, index) {
+                          if (data['articles'][index]['urlToImage'] == null) {
+                            return Container();
+                          }
                           return Container(
                             decoration: BoxDecoration(
                               border: Border.all(
@@ -87,9 +98,14 @@ class _AppState extends State<App> {
                             ),
                             child: Column(
                               children: [
-                                Image.network(
-                                  data['articles'][index]['urlToImage'],
+                                CachedNetworkImage(
+                                  imageUrl: data['articles'][index]
+                                      ['urlToImage'],
                                   width: double.infinity,
+                                  placeholder: (context, url) => Container(
+                                    height: 240,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(12.0),
@@ -127,7 +143,7 @@ class _AppState extends State<App> {
                                           onPressed: () {
                                             openArticle(index);
                                           },
-                                          child: Text("Read More"),
+                                          child: const Text("Read More"),
                                         ),
                                       )
                                     ],
